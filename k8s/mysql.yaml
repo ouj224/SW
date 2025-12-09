@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "1234"
+        - name: MYSQL_DATABASE
+          value: "portfolioDB"
+        ports:
+        - containerPort: 3306
+        volumeMounts:          # [추가됨] 컨테이너 내부의 저장소 경로
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:                 # [추가됨] 내 컴퓨터의 실제 저장소 연결
+      - name: mysql-storage
+        hostPath:
+          path: /run/desktop/mnt/host/c/k8s-data/mysql # C드라이브/k8s-data 폴더에 저장됨

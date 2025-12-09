@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  ports:
+  - port: 27017
+  selector:
+    app: mongo
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        volumeMounts:          # [추가됨]
+        - name: mongo-storage
+          mountPath: /data/db
+      volumes:                 # [추가됨]
+      - name: mongo-storage
+        hostPath:
+          path: /run/desktop/mnt/host/c/k8s-data/mongo # C드라이브/k8s-data 폴더에 저장됨
